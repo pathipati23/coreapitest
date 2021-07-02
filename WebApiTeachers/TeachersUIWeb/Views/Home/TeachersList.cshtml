@@ -1,0 +1,224 @@
+﻿
+@using Kendo.Mvc.UI
+@using Kendo.Mvc.Extensions
+@using Kendo.Mvc
+@addTagHelper *,kendo.Mvc
+@{
+    ViewData["Title"] = "Teachers Details";
+}
+
+<h1>Teachers</h1>
+
+<div class="text-center">
+    @*<h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>*@
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+<script src="https://kendo.cdn.telerik.com/2021.2.616/js/kendo.all.min.js"></script>
+<div class="panel panel-primary">
+    <div class="panel-heading"></div>
+    <div class="panel-body">
+        <div id="Grid"></div>
+        @*<div style="width:60%;height:100%">
+
+                    @(Html.Kendo().Grid<TeachersUIWeb.Models.Teacher>()
+            .Name("grid")
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .ServerOperation(true)
+                .Model(model =>
+                {
+                    model.Id(p => p.Id);
+                    model.Field(p => p.Name).Editable(false);
+                })
+                .Read(read => read.Action("Read", "Home"))
+            )
+        )
+                </div>*@
+        <div class="demo-section k-content">
+          
+            @*<label for="required">Select Skills</label>
+            @(Html.Kendo().MultiSelect()
+            .Name("skills")
+            .Placeholder("Select Skill")
+            .BindTo(new List<string>() {
+            "Steven White",
+              "Nancy King",
+              "Anne King",
+              "Nancy Davolio",
+              "Robert Davolio",
+              "Michael Leverling",
+            })*@
+               
+
+    
+            @*@(Html.Kendo().MultiSelect()
+          .Name("required")
+          .Placeholder("Select attendees...")
+          .BindTo(new List<string>() {
+              "Steven White",
+              "Nancy King",
+              "Anne King",
+              "Nancy Davolio",
+              "Robert Davolio",
+              "Michael Leverling",
+              "Andrew Callahan",
+              "Michael Suyama",
+              "Anne King",
+              "Laura Peacock",
+              "Robert Fuller",
+              "Janet White",
+              "Nancy Leverling",
+              "Robert Buchanan",
+              "Andrew Fuller",
+              "Anne Davolio",
+              "Andrew Suyama",
+              "Nige Buchanan",
+              "Laura Fuller"
+          })
+          .Value(new string[] { "Anne King", "Andrew Fuller" })*@
+    )
+
+            <div class="text-center">
+                <h2>Teachers Details</h2>
+                @(Html.Kendo().Grid<TeachersUIWeb.Models.Teacher>()
+            .Name("grid")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.Id).Width(100);
+                columns.Bound(c => c.Name).Width(300);
+                columns.Bound(c => c.Salary).Width(100);
+                columns.Bound(c => c.Skills).Width(200);
+                columns.Bound(c => c.TotalStudents).Width(200);
+                columns.Bound(c => c.AddedOn).Width(200);
+
+            })
+             .ColumnMenu(col => col.Filterable(true))
+            .Pageable()
+            .Sortable()
+            .Scrollable()
+            .Navigatable()
+            .Resizable(r => r.Columns(true))
+            .Reorderable(r => r.Columns(true))
+            .Groupable(g => g.ShowFooter(false))
+            .Editable(editable => editable.Mode(GridEditMode.InCell))
+            .Filterable(ftb => ftb.Mode(GridFilterMode.Row))
+            .HtmlAttributes(new { style = "height:550px;" })
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .Read(read => read.Action("Select", "Home"))
+            )
+        )
+            </div>
+            @*<div class="text-center">
+                <h2>Kendo UI Grid</h2>
+                @(Html.Kendo().Grid<TeachersUIWeb.Models.Products>()
+                .Name("grid")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.ProductID).Width(100);
+                    columns.Bound(c => c.ProductName).Width(300);
+                    columns.Bound(c => c.UnitPrice).Width(100);
+                    columns.Bound(c => c.Discontinued).Width(200);
+                })
+                .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Read(read => read.Action("Select", "Home"))
+                )
+            )
+            </div>*@
+            @*<div style="width:60%;height:100%">
+                @(Html.Kendo().Grid<TeachersUIWeb.Models.Company>()
+                    .Name("BindGridUsingRead")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.Id).Width(15).Title("Sr. No.").Filterable(false);
+                        columns.Bound(p => p.Name).Title("Name").Width(30).Filterable(false);
+                        columns.Bound(p => p.CompanyId).Title("Company Id").Width(15).Filterable(false);
+                        })
+                       .Scrollable()
+                       .Pageable(x => x.PageSizes(new List<object> { 10, 20, 100, 200, 500, "all" }).Refresh(true))
+                        .Filterable(ftp => ftp.Mode(GridFilterMode.Row))
+                        .Resizable(resize => resize.Columns(true))
+                        .HtmlAttributes(new { style = "height: 100%" })
+                        .Selectable()
+                        .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Model(model => model.Id(p => p.Id))
+                        .ServerOperation(false)
+                        .Read(read => read.Action("BindGrid", "Home"))
+                 )
+                )
+            </div>*@
+
+            @*<script>
+
+                $(document).ready(function () {
+                    $("#Grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                contentType: "application/json; charset=utf-8",
+                                type: "GET",
+                                dataType: "json",
+                                /* read: "https://demos.telerik.com/kendo-ui/service/detailproducts",*/
+                                read: "https://localhost:44330/teacher",
+
+
+                            },
+                            pageSize: 5,
+                            schema: {
+                                model: {
+                                    fields: {
+                                        id: {
+                                            type: "string"
+                                        },
+                                        name: {
+                                            type: "string"
+                                        },
+                                        skills: {
+                                            type: "string"
+                                        },
+                                        totalStudents: {
+                                            type: "int"
+                                        },
+                                        addedOn: {
+                                            type: "date"
+                                        }
+                                    }
+                                }
+                            },
+                        },
+                        filterable: true,
+                        sortable: true,
+                        groupable: true,
+                        reorderable: true,
+                        resizable: true,
+                        pageable: {
+                            refresh: true,
+                            pageSizes: true,
+                            buttonCount: 5
+                        },
+                        columns: [{
+                            field: "id",
+                            title: "Id"
+                        }, {
+                            field: "name",
+                            title: "Name"
+                        }, {
+                            field: "skills",
+                            title: "Skills"
+                        }, {
+                            field: "totalStudents",
+                            title: "TotalStudents",
+                        }, {
+                            field: "addedOn",
+                            title: "AddedOn",
+                            format: "{0:MM-dd-yyyy}"
+                        }]
+                    });
+                });
+            </script>*@
