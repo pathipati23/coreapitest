@@ -21,10 +21,12 @@ namespace TeachersUIWeb.Controllers
         private readonly ILogger<HomeController> _logger;
 
         public List<Teacher> ts;
+        public List<Teacher> teachers;
+        public List<Teacher> tchrs;
 
         public HomeController(ILogger<HomeController> logger)
         {
-            _logger = logger;
+            _logger = logger;    
         }
 
         public IActionResult Index()
@@ -94,50 +96,15 @@ namespace TeachersUIWeb.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-
-        public ActionResult BindGrid([DataSourceRequest] DataSourceRequest request)
-        {
-            try
-            {
-                decimal companyId = 0;
-                List<Models.Company> lst = new List<Models.Company>();
-                lst = GetGridData(Convert.ToInt32(companyId)).ToList();
-                DataSourceResult result = lst.ToDataSourceResult(request, p => new Models.Company
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    CompanyId = p.CompanyId,
-                });
-                return Json(result);
-            }
-            catch (Exception ex)
-            {
-                var errorMsg = ex.Message.ToString();
-                return Json(errorMsg);
-            }
-        }
-        public IEnumerable<Models.Company> GetGridData(decimal companyId)
-        {
-            List<Models.Company> objCmp = new List<Models.Company>();
-            List<Models.Company> listCompany = new List<Models.Company>();
-            objCmp.Add(new Models.Company() { Id = 1, Name = "Rupesh Kahane", CompanyId = 20 });
-            objCmp.Add(new Models.Company() { Id = 2, Name = "Vithal Wadje", CompanyId = 40 });
-            objCmp.Add(new Models.Company() { Id = 3, Name = "Jeetendra Gund", CompanyId = 30 });
-            objCmp.Add(new Models.Company() { Id = 4, Name = "Ashish Mane", CompanyId = 15 });
-            objCmp.Add(new Models.Company() { Id = 5, Name = "Rinku Kulkarni", CompanyId = 18 });
-            objCmp.Add(new Models.Company() { Id = 6, Name = "Priyanka Jain", CompanyId = 22 });
-            if (companyId > 0)
-            {
-                listCompany = objCmp.ToList().Where(a => a.CompanyId <= companyId).ToList();
-                return listCompany.AsEnumerable();
-            }
-            return objCmp.ToList().AsEnumerable();
-        }
-
         public ActionResult Select([DataSourceRequest] DataSourceRequest request)
         {
-            GetTeachersDataAsync();
-            return Json(ts.ToDataSourceResult(request));
+            if (string.IsNullOrEmpty(HttpContext.Session.GetString("skillsApply")))
+            {
+                GetTeachersDataAsync();
+            }
+            List<Teacher> _sessionList = SessionHelper.GetObjectFromJson<List<Teacher>>(HttpContext.Session, "teachersList");
+
+            return Json(_sessionList.ToDataSourceResult(request));
         }
 
         public async Task<IEnumerable<Teacher>> GetTeachersDataAsync()
@@ -156,8 +123,84 @@ namespace TeachersUIWeb.Controllers
             response.EnsureSuccessStatusCode();
             string apiResponse = await response.Content.ReadAsStringAsync();
             List<Teacher> plist = JsonConvert.DeserializeObject<List<Teacher>>(apiResponse);
+            SessionHelper.SetObjectAsJson(HttpContext.Session, "teachersList", plist);
+            SessionHelper.SetObjectAsJson(HttpContext.Session, "tempteachersList", plist);
             ts = plist;
-            return plist.AsEnumerable();
+            teachers = plist;
+            return teachers.AsEnumerable();
         }
+
+        public ActionResult SelectSkills([DataSourceRequest] DataSourceRequest request)
+        {
+            GetTeachersDataAsync();
+            List<Teacher> lt= SessionHelper.GetObjectFromJson<List<Teacher>>(HttpContext.Session, "tempteachersList");
+            return Json(lt.Select(s => s.Skills).ToDataSourceResult(request));
+        }
+
+        [HttpPost]
+        public ActionResult MultselctPostback([DataSourceRequest] DataSourceRequest request, IFormCollection collection)
+        {
+            if (ModelState.IsValid)
+            {
+                GetTeachersDataAsync();
+               teachers = new List<Teacher>();
+        List<string> sdt = collection["Skills"].ToList();
+                if (sdt.Count > 0) {
+                    //ts = ts.Select(s => s.Skills.Contains(sdt));
+                    foreach (string st in sdt)
+                    {
+                        foreach (Teacher ta in ts)
+                        {
+                            if (ta.Skills == st)
+                            {
+                                teachers.Add(ta);
+                            }
+
+                        }
+                    }
+                  
+                }
+                else { teachers = ts; }
+
+        }
+
+             return Redirect("TeachersList");
+        }
+        [HttpPost]
+        public List<Teacher> selectedItems(List<string> sdt)
+        {
+           
+            List<Teacher> _sessionList = SessionHelper.GetObjectFromJson<List<Teacher>>(HttpContext.Session, "tempteachersList");
+           
+            teachers = new List<Teacher>();
+           
+            if (sdt.Count > 0)
+            {
+                //ts = ts.Select(s => s.Skills.Contains(sdt));
+                foreach (string st in sdt)
+                {
+                    foreach (Teacher ta in _sessionList)
+                    {
+                        if (ta.Skills == st)
+                        {
+                            teachers.Add(ta);
+                        }
+
+                    }
+                }
+
+            }
+            if (sdt.Count() > 0)
+            {
+                HttpContext.Session.SetString("skillsApply", "yes");
+                SessionHelper.SetObjectAsJson(HttpContext.Session, "teachersList", teachers);
+            }
+            else {
+                SessionHelper.SetObjectAsJson(HttpContext.Session, "teachersList", _sessionList);
+                 }
+           
+            return teachers;
+        }
+
     }
 }
